@@ -2,6 +2,6 @@
 {
     public abstract class Message
     {
-        public Guid Id { get; set; }
+        public required Guid Id { get; set; }
     }
 }

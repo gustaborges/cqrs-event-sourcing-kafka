@@ -1,20 +1,21 @@
 ﻿using CQRS.Core.Commands;
-using CQRS.Core.Infrastructure;
+using CQRS.Core.Infraestructure;
 
 namespace SocialMedia.Post.Command.Infrastructure.Dispatchers
 {
+    // Concrete mediator
     public class CommandDispatcher : ICommandDispatcher
     {
         private Dictionary<Type, Func<BaseCommand, Task>> _handlers = [];
 
-        public void RegisterHandler<T>(Func<T, Task> handler) where T : BaseCommand
+        public void RegisterHandler<TCommand>(Func<TCommand, Task> handler) where TCommand : BaseCommand
         {
-            if(_handlers.ContainsKey(typeof(T)))
+            if(_handlers.ContainsKey(typeof(TCommand)))
             {
-                throw new ArgumentOutOfRangeException($"You cannot register duplicate handlers. The duplicate handler is for command {nameof(T)}");
+                throw new ArgumentOutOfRangeException($"You cannot register duplicate handlers. The duplicate handler is for command {nameof(TCommand)}");
             }
 
-            _handlers[typeof(T)] = (x) => handler((T)x);
+            _handlers[typeof(TCommand)] = (x) => handler((TCommand)x);
         }
 
         public async Task SendAsync(BaseCommand command)

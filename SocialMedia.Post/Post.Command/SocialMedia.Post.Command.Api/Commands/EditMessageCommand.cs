@@ -4,6 +4,7 @@ namespace SocialMedia.Post.Command.Api.Commands
 {
     public class EditMessageCommand : BaseCommand
     {
-        public string Message { get; set; }
+        public required string Message { get; set; }
+        public required string Username { get; set; }
     }
 }

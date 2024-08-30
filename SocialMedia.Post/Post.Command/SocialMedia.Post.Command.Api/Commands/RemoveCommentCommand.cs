@@ -4,7 +4,7 @@ namespace SocialMedia.Post.Command.Api.Commands
 {
     public class RemoveCommentCommand : BaseCommand
     {
-        public Guid CommentId { get; set; }
-        public string Username { get; set; }
+        public required Guid CommentId { get; set; }
+        public required string Username { get; set; }
     }
 }

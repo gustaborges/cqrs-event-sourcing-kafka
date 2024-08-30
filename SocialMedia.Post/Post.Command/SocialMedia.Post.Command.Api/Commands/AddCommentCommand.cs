@@ -1,8 +1,10 @@
-﻿namespace SocialMedia.Post.Command.Api.Commands
+﻿using CQRS.Core.Commands;
+
+namespace SocialMedia.Post.Command.Api.Commands
 {
-    public class AddCommentCommand
+    public class AddCommentCommand : BaseCommand
     {
-        public string Comment { get; set; }
-        public string Username { get; set; }
+        public required string Comment { get; set; }
+        public required string Username { get; set; }
     }
 }

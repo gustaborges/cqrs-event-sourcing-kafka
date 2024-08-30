@@ -1,45 +1,49 @@
 services:
-  controller-1:
-    image: apache/kafka:latest
-    container_name: controller-1
-    environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: controller
-      KAFKA_LISTENERS: CONTROLLER://:9093
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-    networks:
-      - cqrs_network
 
-  broker-1:
-    image: apache/kafka:latest
-    container_name: broker-1
+  kafka_b:
+    image: 'bitnami/kafka:latest'
+    restart: always
+    hostname: kafka_b
     ports:
-      - 29092:9092
+      - '9092:9092'
+      - '9094:9094'
+    volumes:
+      - 'kafka.data:/bitnami'
     environment:
-      KAFKA_NODE_ID: 4
-      KAFKA_PROCESS_ROLES: broker
-      KAFKA_LISTENERS: 'PLAINTEXT://:19092,PLAINTEXT_HOST://:9092'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:29092'
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@controller-1:9093
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-    depends_on:
-      - controller-1
+      - KAFKA_ENABLE_KRAFT=yes
+      # - KAFKA_KRAFT_CLUSTER_ID=228f04bc-0895-11ee-be56-0242ac120002
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092,EXTERNAL://kafka_b:9094
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      # - BITNAMI_DEBUG=yes
+      - KAFKA_CFG_NUM_PARTITIONS=2
     networks:
       - cqrs_network
 
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8080:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    volumes:
+      - ./kakfa-ui/config.yml:/etc/kafkaui/dynamic_config.yaml
+      
   mongo:
     image: mongo:latest
     container_name: mongo
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongo.data:/data/db
     networks:
       - cqrs_network
 
@@ -57,11 +61,11 @@ services:
       image: postgres
       restart: always
       ports:
-        - 5434:5432
+        - 6432:5432
       environment:
         - POSTGRES_PASSWORD=admin
       volumes:
-        - postegres.data:/var/lib/postgresql/data
+        - postgres.data:/var/lib/postgresql/data
 
   pgadmin4:
       user: root
@@ -76,14 +80,15 @@ services:
         - ./queries:/var/lib/pgadmin/storage/admin_admin.com
         - pgadmin.working.dir:/var/lib/pgadmin
       ports:
-        - 5435:80
+        - 6433:80
       depends_on:
         - postgres
 
 volumes:
-  mongo-data:
+  mongo.data:
   postgres.data:
   pgadmin.working.dir:
+  kafka.data:
 
 networks:
   cqrs_network:

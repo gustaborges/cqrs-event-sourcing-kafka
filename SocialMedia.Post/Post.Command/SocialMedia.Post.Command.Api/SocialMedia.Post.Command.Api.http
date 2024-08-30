@@ -1,6 +1,7 @@
-@SocialMedia.Post.Command.Api_HostAddress = http://localhost:5293
+@SocialMedia.Post.Command.Api_HostAddress = https://localhost:7258
 
 GET {{SocialMedia.Post.Command.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
+###
 ###

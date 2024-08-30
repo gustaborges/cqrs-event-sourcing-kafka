@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Post.Command\SocialMedia.Post.Command.Api\SocialMedia.Post.Command.Api.csproj" />
+    <ProjectReference Include="..\..\CQRS.Core\CQRS.Core.csproj" />
   </ItemGroup>
+
 
 </Project>

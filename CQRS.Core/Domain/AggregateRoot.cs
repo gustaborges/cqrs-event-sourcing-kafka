@@ -2,6 +2,14 @@
 
 namespace CQRS.Core.Domain
 {
+    /**
+     * 
+     * The Aggregate Root maintains the list of uncommitted changes in the form of events, that need to be applied to the aggregate and be persisted to the event store.
+     * It manages which apply method is invoked on the concrete Aggregate based on the event type.
+     * The Aggregate Root is the entity within the aggregate that is responsible for always keeping it in a consistent state.
+     * Commits the changes that have been applied to the Aggregate to the event store.
+     * 
+     */
     public abstract class AggregateRoot
     {
         private readonly List<BaseEvent> _uncommitedChanges = [];
