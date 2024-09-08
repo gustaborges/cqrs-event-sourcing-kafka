@@ -21,8 +21,4 @@
     <ProjectReference Include="..\SocialMedia.Post.Command.Infrastructure\SocialMedia.Post.Command.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ViewModels\Responses\" />
-  </ItemGroup>
-
 </Project>

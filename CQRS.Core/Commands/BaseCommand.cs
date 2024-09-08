@@ -1,8 +1,7 @@
-﻿using CQRS.Core.Messages;
-
-namespace CQRS.Core.Commands
+﻿namespace CQRS.Core.Commands
 {
-    public class BaseCommand : Message
+    public class BaseCommand
     {
+        public required Guid Id { get; set; }
     }
 }

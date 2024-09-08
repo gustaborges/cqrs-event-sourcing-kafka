@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,5 +11,11 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Npgsql" Version="8.0.3" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Post.Common\SocialMedia.Post.Common.csproj" />
+    <ProjectReference Include="..\SocialMedia.Post.Query.Domain\SocialMedia.Post.Query.Domain.csproj" />
+  </ItemGroup>
+
 
 </Project>

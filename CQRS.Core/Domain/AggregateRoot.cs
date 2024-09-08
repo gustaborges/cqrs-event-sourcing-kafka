@@ -1,4 +1,5 @@
 ﻿using CQRS.Core.Events;
+using CQRS.Core.Notifications;
 
 namespace CQRS.Core.Domain
 {
@@ -10,7 +11,7 @@ namespace CQRS.Core.Domain
      * Commits the changes that have been applied to the Aggregate to the event store.
      * 
      */
-    public abstract class AggregateRoot
+    public abstract class AggregateRoot : Notifiable
     {
         private readonly List<BaseEvent> _uncommitedChanges = [];
 
@@ -39,7 +40,7 @@ namespace CQRS.Core.Domain
 
             applyMethod.Invoke(this, [@event]);
 
-            if(isNew) // If this is a new event, not one that has been retrieved from the event store
+            if(isNew && !HasNotifications()) // If this is a new event, not one that has been retrieved from the event store
             {
                 _uncommitedChanges.Add(@event);
             }

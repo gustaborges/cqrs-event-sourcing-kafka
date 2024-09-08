@@ -1,8 +1,9 @@
 ﻿
 using CQRS.Core.Infraestructure;
+using SocialMedia.Post.Command.Api.Commands;
 using SocialMedia.Post.Command.Domain.Aggregates;
 
-namespace SocialMedia.Post.Command.Api.Commands.Handlers
+namespace SocialMedia.Post.Command.Api.Handlers
 {
     // The CommandHandler class is the concrete colleague class that handles commands by invoking the relevant PostAggregate and EventSourcingHandler methods.
     public class CommandHandler : ICommandHandler
@@ -14,52 +15,71 @@ namespace SocialMedia.Post.Command.Api.Commands.Handlers
             _eventSourcingHandler = eventSourcingHandler;
         }
 
-        public async Task HandleAsync(NewPostCommand command)
+        public async Task<CommandResult> HandleAsync(NewPostCommand command)
         {
             var aggregate = new PostAggregate(command.Id, command.Author, command.Message);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+
+            return await SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(EditMessageCommand command)
+        public async Task<CommandResult> HandleAsync(EditMessageCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
             aggregate.EditMessage(command.Message, command.Username);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+
+            return await SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(DeletePostCommand command)
+        public async Task<CommandResult> HandleAsync(DeletePostCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
             aggregate.DeletePost(command.Username);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+
+            return await SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(AddCommentCommand command)
+        public async Task<CommandResult> HandleAsync(AddCommentCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
-            aggregate.AddComment(command.Comment, command.Username);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+            aggregate.AddComment(command.CommentId, command.Comment, command.Username);
+
+            return await SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(EditCommentCommand command)
+        public async Task<CommandResult> HandleAsync(EditCommentCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
             aggregate.EditComment(command.CommentId, command.Comment, command.Username);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+
+            return await SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(RemoveCommentCommand command)
+        public async Task<CommandResult> HandleAsync(RemoveCommentCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
             aggregate.RemoveComment(command.CommentId, command.Username);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+
+            return await SaveAsync(aggregate);
         }
 
-        public async Task HandleAsync(LikePostCommand command)
+        public async Task<CommandResult> HandleAsync(LikePostCommand command)
         {
             var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
             aggregate.LikePost();
+
+            return await SaveAsync(aggregate);
+        }
+
+        private async Task<CommandResult> SaveAsync(PostAggregate aggregate)
+        {
+            if (aggregate.HasNotifications())
+            {
+                return CommandResult.Failure(aggregate.GetNotifications());
+            }
+
             await _eventSourcingHandler.SaveAsync(aggregate);
+
+            return CommandResult.Success();
         }
     }
 }

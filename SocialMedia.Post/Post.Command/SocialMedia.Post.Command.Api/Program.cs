@@ -2,9 +2,10 @@ using Confluent.Kafka;
 using CQRS.Core.Domain;
 using CQRS.Core.Infraestructure;
 using CQRS.Core.Producers;
+using MongoDB.Bson.Serialization;
 using SocialMedia.Post.Command.Api.Commands;
-using SocialMedia.Post.Command.Api.Commands.Handlers;
 using SocialMedia.Post.Command.Api.Endpoints;
+using SocialMedia.Post.Command.Api.Handlers;
 using SocialMedia.Post.Command.Domain.Aggregates;
 using SocialMedia.Post.Command.Infrastructure.Config;
 using SocialMedia.Post.Command.Infrastructure.Dispatchers;
@@ -12,11 +13,13 @@ using SocialMedia.Post.Command.Infrastructure.Handlers;
 using SocialMedia.Post.Command.Infrastructure.Producers;
 using SocialMedia.Post.Command.Infrastructure.Repositories;
 using SocialMedia.Post.Command.Infrastructure.Stores;
+using SocialMedia.Post.Common.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 builder.Services.AddOptions<MongoDbConfig>().Bind(builder.Configuration.GetSection(nameof(MongoDbConfig)));
 builder.Services.AddOptions<ProducerConfig>().Bind(builder.Configuration.GetSection(nameof(ProducerConfig)));
 builder.Services.AddOptions<KafkaConfig>().Bind(builder.Configuration.GetSection(nameof(KafkaConfig)));
@@ -40,6 +43,14 @@ builder.Services.AddScoped<ICommandDispatcher>(sp =>
     return dispatcher;
 });
 
+BsonClassMap.RegisterClassMap<PostCreatedEvent>();
+BsonClassMap.RegisterClassMap<PostLikedEvent>();
+BsonClassMap.RegisterClassMap<PostRemovedEvent>();
+BsonClassMap.RegisterClassMap<MessageUpdatedEvent>();
+BsonClassMap.RegisterClassMap<CommentAddedEvent>();
+BsonClassMap.RegisterClassMap<CommentUpdatedEvent>();
+BsonClassMap.RegisterClassMap<CommentRemovedEvent>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -48,6 +59,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 

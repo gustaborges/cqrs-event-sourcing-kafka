@@ -1,14 +1,13 @@
-﻿using CQRS.Core.Messages;
-
-namespace CQRS.Core.Events
+﻿namespace CQRS.Core.Events
 {
-    public abstract class BaseEvent : Message
+    public abstract class BaseEvent
     {
-        protected BaseEvent(string type)
+        public BaseEvent(string type)
         {
             Type = type;
         }
 
+        public required Guid Id { get; set; }
         public int Version { get; set; }
         public string Type { get; set; }
     }

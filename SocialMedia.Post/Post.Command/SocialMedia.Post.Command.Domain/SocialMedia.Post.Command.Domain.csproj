@@ -9,5 +9,7 @@
     <ProjectReference Include="..\..\..\CQRS.Core\CQRS.Core.csproj" />
     <ProjectReference Include="..\..\Post.Common\SocialMedia.Post.Common.csproj" />
   </ItemGroup>
-
+  
+  
+  
 </Project>

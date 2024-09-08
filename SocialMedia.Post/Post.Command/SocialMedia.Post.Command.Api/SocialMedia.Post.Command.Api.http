@@ -5,3 +5,7 @@ Accept: application/json
 
 ###
 ###
+
+POST {{SocialMedia.Post.Command.Api_HostAddress}}/posts/{postId}/like
+
+###

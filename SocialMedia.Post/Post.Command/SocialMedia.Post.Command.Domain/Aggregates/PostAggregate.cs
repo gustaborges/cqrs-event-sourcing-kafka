@@ -1,4 +1,5 @@
 ﻿using CQRS.Core.Domain;
+using CQRS.Core.Notifications;
 using SocialMedia.Post.Common.Events;
 
 namespace SocialMedia.Post.Command.Domain.Aggregates
@@ -9,8 +10,8 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
     public class PostAggregate : AggregateRoot
     {
-        public bool Active { get; set; }
         public string Author { get; private set; }
+        public bool Removed { get; set; }
         private Dictionary<Guid, (string comment, string username)> Comments { get; } = [];
 
         public PostAggregate()
@@ -19,6 +20,12 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
         public PostAggregate(Guid id, string author, string message)
         {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                AddNotification($"The value of {nameof(message)} cannot be null or empty. Please provide a valid {nameof(message)}!", Subject.InvalidOperation);
+                return;
+            }
+
             RaiseEvent(new PostCreatedEvent()
             {
                 Id = id,
@@ -30,19 +37,22 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
         public void EditMessage(string message, string username)
         {
-            if(!Active)
+            if(Removed)
             {
-                throw new InvalidOperationException("You cannot edit the message of an inactive post");
+                AddNotification("The post has been permanently removed", Subject.ResourceNotFound);
+                return;
             }
 
             if(string.IsNullOrWhiteSpace(message))
             {
-                throw new ArgumentException($"The value of {nameof(message)} cannot be null or empty. Please provide a valid {nameof(message)}!");
+                AddNotification($"The value of {nameof(message)} cannot be null or empty. Please provide a valid {nameof(message)}!", Subject.InvalidOperation);
+                return;
             }
 
             if(!Author.Equals(username, StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("You cannot edit the post of another user");
+                AddNotification("You cannot edit the post of another user", Subject.NotAuthorizedOperation);
+                return;
             }
 
             RaiseEvent(new MessageUpdatedEvent
@@ -54,9 +64,10 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
         public void LikePost()
         {
-            if (!Active)
+            if (Removed)
             {
-                throw new InvalidOperationException("You cannot like an inactive post");
+                AddNotification("The post has been permanently removed", Subject.ResourceNotFound);
+                return;
             }
 
             RaiseEvent(new PostLikedEvent()
@@ -65,16 +76,18 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
             });
         }
 
-        public void AddComment(string comment, string username)
+        public void AddComment(Guid commentId, string comment, string username)
         {
-            if (!Active)
+            if (Removed)
             {
-                throw new InvalidOperationException("You cannot add a comment to an inactive post");
+                AddNotification("The post has been permanently removed", Subject.ResourceNotFound);
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(comment))
             {
-                throw new ArgumentException($"The value of {nameof(comment)} cannot be null or empty. Please provide a valid {nameof(comment)}!");
+                AddNotification($"The value of {nameof(comment)} cannot be null or empty. Please provide a valid {nameof(comment)}!", Subject.InvalidOperation);
+                return;
             }
 
             RaiseEvent(new CommentAddedEvent
@@ -82,26 +95,35 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
                 Id = Id,
                 Comment = comment,
                 CommentDate = DateTime.Now,
-                CommentId = Guid.NewGuid(),
+                CommentId = commentId,
                 Username = username
             });
         }
 
         public void EditComment(Guid commentId, string comment, string username)
         {
-            if (!Active)
+            if (Removed)
             {
-                throw new InvalidOperationException("You cannot edit a comment of an inactive post");
+                AddNotification("The post has been permanently removed", Subject.ResourceNotFound);
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(comment))
             {
-                throw new ArgumentException($"The value of {nameof(comment)} cannot be null or empty. Please provide a valid {nameof(comment)}!");
+                AddNotification($"The value of {nameof(comment)} cannot be null or empty. Please provide a valid {nameof(comment)}!", Subject.InvalidOperation);
+                return;
+            }
+
+            if (!Comments.ContainsKey(commentId))
+            {
+                AddNotification("Comment not found", Subject.ResourceNotFound);
+                return;
             }
 
             if (!Comments[commentId].username.Equals(username, StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("You are not allowed to edit a comment that was made by another user");
+                AddNotification("You are not allowed to edit a comment that was made by another user", Subject.NotAuthorizedOperation);
+                return;
             }
 
             RaiseEvent(new CommentUpdatedEvent()
@@ -116,14 +138,22 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
         public void RemoveComment(Guid commentId, string username)
         {
-            if (!Active)
+            if (Removed)
             {
-                throw new InvalidOperationException("You cannot remove a comment of an inactive post");
+                AddNotification("The post has been permanently removed", Subject.ResourceNotFound);
+                return;
+            }
+
+            if (!Comments.ContainsKey(commentId))
+            {
+                AddNotification("Comment not found", Subject.ResourceNotFound);
+                return;
             }
 
             if (!Comments[commentId].username.Equals(username, StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("You are not allowed to remove a comment that was made by another user");
+                AddNotification("You are not allowed to remove a comment that was made by another user", Subject.NotAuthorizedOperation);
+                return;
             }
 
             RaiseEvent(new CommentRemovedEvent()
@@ -135,14 +165,16 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
         public void DeletePost(string username)
         {
-            if (!Active)
+            if (Removed)
             {
-                throw new InvalidOperationException("You cannot remove an inactive post");
+                AddNotification("The post has already been removed", Subject.InvalidOperation);
+                return;
             }
 
             if (!Author.Equals(username, StringComparison.OrdinalIgnoreCase))
             {
-                throw new InvalidOperationException("You are not allowed to remove a post that was made by another user");
+                AddNotification("You are not allowed to remove a post that was made by another user", Subject.NotAuthorizedOperation);
+                return;
             }
 
             RaiseEvent(new PostRemovedEvent()
@@ -154,7 +186,7 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
         public void Apply(PostCreatedEvent @event)
         {
             Id = @event.Id;
-            Active = true;
+            Removed = false;
             Author = @event.Author;
         }
 
@@ -191,7 +223,7 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
         public void Apply(PostRemovedEvent @event)
         {
             Id = @event.Id; // TODO: why are we setting the id of the post ?
-            Active = false;
+            Removed = true;
         }
     }
 }
