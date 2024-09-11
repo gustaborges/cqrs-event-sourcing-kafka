@@ -11,8 +11,10 @@ namespace SocialMedia.Post.Query.Migrations
                 CREATE TABLE comments (
                     comment_id      UUID,
                     username        VARCHAR(50) NOT NULL,
+                    comment         VARCHAR(500) NOT NULL,
                     comment_date    TIMESTAMPTZ NOT NULL,
                     post_id         UUID NOT NULL,
+                    edited          BOOLEAN NOT NULL DEFAULT false,
                     likes           INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY (comment_id),
                     FOREIGN KEY (post_id) REFERENCES posts(post_id)

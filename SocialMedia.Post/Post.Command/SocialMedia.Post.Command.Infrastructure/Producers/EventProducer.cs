@@ -29,7 +29,7 @@ namespace SocialMedia.Post.Command.Infrastructure.Producers
             var eventMessage = new Message<string, string>
             {
                 Key = Guid.NewGuid().ToString(),
-                Value = JsonSerializer.Serialize(@event)
+                Value = JsonSerializer.Serialize(@event, @event.GetType())
             };
 
             _logger.LogInformation($"Producing message from event {@event.GetType().Name} to topic {topic}");

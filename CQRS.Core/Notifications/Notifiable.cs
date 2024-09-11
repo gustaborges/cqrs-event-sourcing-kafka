@@ -14,7 +14,7 @@
             return [.. _notifications];
         }
 
-        public void AddNotification(string message, Subject subject = Subject.Unspecified)
+        public void AddNotification(string message, Subject subject)
         {
             _notifications.Add(new Notification(message, subject));
         }

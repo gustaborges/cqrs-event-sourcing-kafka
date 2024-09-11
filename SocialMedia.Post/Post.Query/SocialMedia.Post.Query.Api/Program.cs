@@ -31,13 +31,15 @@ builder.Services.AddScoped<IQueryDispatcher<PostEntity>, QueryDispatcher>(sp =>
 {
     var queryHandler = sp.GetRequiredService<IQueryHandler>();
     var dispatcher = new QueryDispatcher();
-    dispatcher.RegisterHandler<FindAllPostsQuery>(queryHandler.HandleAsync);
+    dispatcher.RegisterHandler< FindAllPostsQuery>(queryHandler.HandleAsync);
     dispatcher.RegisterHandler<FindPostByIdQuery>(queryHandler.HandleAsync);
     dispatcher.RegisterHandler<FindPostsByAuthorQuery>(queryHandler.HandleAsync);
     dispatcher.RegisterHandler<FindPostsWithCommentsQuery>(queryHandler.HandleAsync);
     dispatcher.RegisterHandler<FindPostsWithLikesQuery>(queryHandler.HandleAsync);
     return dispatcher;
 });
+
+builder.Services.AddHostedService<ConsumerHostedService>();
 
 var app = builder.Build();
 
@@ -50,7 +52,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-app.MapPost("/posts/{postId}/comments", async ([FromRoute] Guid postId,
+app.MapPost("/posts/{postId}/comments", async (
+    [FromRoute] Guid postId,
     [FromBody] Guid body,
     [FromServices] ICommandDispatcher commandDispatcher,
     HttpContext httpContext) =>
@@ -61,7 +64,8 @@ app.MapPost("/posts/{postId}/comments", async ([FromRoute] Guid postId,
 .WithName("AddComment")
 .WithOpenApi();
 
-app.MapGet("posts", async (IQueryDispatcher<PostEntity> queryDispatcher, ILogger logger) =>
+app.MapGet("posts", async (
+    [FromServices] IQueryDispatcher<PostEntity> queryDispatcher) =>
 {
     try
     {
@@ -71,18 +75,17 @@ app.MapGet("posts", async (IQueryDispatcher<PostEntity> queryDispatcher, ILogger
     }
     catch(Exception ex)
     {
-        const string SAFE_ERROR_MESSAGE = "Error while processing request to retrieve all posts!";
-        logger.LogError(ex, SAFE_ERROR_MESSAGE);
+        const string SafeErrorMessage = "Error while processing request to retrieve all posts!";
+        app.Logger.LogError(ex, SafeErrorMessage);
 
-        return Results.Problem(SAFE_ERROR_MESSAGE, statusCode: StatusCodes.Status500InternalServerError);
+        return Results.Problem(SafeErrorMessage, statusCode: StatusCodes.Status500InternalServerError);
     }
 })
 .WithName("GetAllPosts")
 .WithOpenApi();
 
 app.MapGet("posts/{postId}", async ([FromRoute] Guid postId,
-    [FromServices] IQueryDispatcher<PostEntity> queryDispatcher,
-    [FromServices]  ILogger logger) =>
+    [FromServices] IQueryDispatcher<PostEntity> queryDispatcher) =>
 {
     try
     {
@@ -97,18 +100,17 @@ app.MapGet("posts/{postId}", async ([FromRoute] Guid postId,
     }
     catch (Exception ex)
     {
-        string safeErrorMessage = "Error while processing request to retrieve post {postId}!";
-        logger.LogError(ex, safeErrorMessage);
+        const string SafeErrorMessage = "Error while processing request to retrieve post";
+        app.Logger.LogError(ex, SafeErrorMessage);
 
-        return Results.Problem(safeErrorMessage, statusCode: StatusCodes.Status500InternalServerError);
-    }
+        return Results.Problem(SafeErrorMessage, statusCode: StatusCodes.Status500InternalServerError);
+    } 
 })
 .WithName("GetPostById")
 .WithOpenApi();
 
 app.MapGet("posts/byAuthor/{author}", async ([FromRoute] string author,
-    [FromServices] IQueryDispatcher<PostEntity> queryDispatcher,
-    [FromServices] ILogger logger) =>
+    [FromServices] IQueryDispatcher<PostEntity> queryDispatcher) =>
 {
     try
     {
@@ -118,17 +120,16 @@ app.MapGet("posts/byAuthor/{author}", async ([FromRoute] string author,
     }
     catch (Exception ex)
     {
-        string safeErrorMessage = $"Error while processing request to retrieve posts from author {author}";
-        logger.LogError(ex, safeErrorMessage);
+        string SafeErrorMessage = "Error while processing request to retrieve posts from author";
+        app.Logger.LogError(ex, SafeErrorMessage);
 
-        return Results.Problem(safeErrorMessage, statusCode: StatusCodes.Status500InternalServerError);
+        return Results.Problem(SafeErrorMessage, statusCode: StatusCodes.Status500InternalServerError);
     }
 })
 .WithName("GetPostByAuthor")
 .WithOpenApi();
 
-app.MapGet("posts/withComments", async ([FromServices] IQueryDispatcher<PostEntity> queryDispatcher,
-    [FromServices] ILogger logger) =>
+app.MapGet("posts/withComments", async ([FromServices] IQueryDispatcher<PostEntity> queryDispatcher) =>
 {
     try
     {
@@ -138,10 +139,10 @@ app.MapGet("posts/withComments", async ([FromServices] IQueryDispatcher<PostEnti
     }
     catch (Exception ex)
     {
-        const string SAFE_ERROR_MESSAGE = "Error while processing request to retrieve posts with comments";
-        logger.LogError(ex, SAFE_ERROR_MESSAGE);
+        const string SafeErrorMessage = "Error while processing request to retrieve posts with comments";
+        app.Logger.LogError(ex, SafeErrorMessage);
 
-        return Results.Problem(SAFE_ERROR_MESSAGE, statusCode: StatusCodes.Status500InternalServerError);
+        return Results.Problem(SafeErrorMessage, statusCode: StatusCodes.Status500InternalServerError);
     }
 })
 .WithName("GetPostByWithComments")
@@ -149,8 +150,7 @@ app.MapGet("posts/withComments", async ([FromServices] IQueryDispatcher<PostEnti
 
 app.MapGet("posts/withLikes/{numberOfLikes}", async (
     [FromRoute] int numberOfLikes,
-    [FromServices] IQueryDispatcher<PostEntity> queryDispatcher,
-    [FromServices] ILogger logger) =>
+    [FromServices] IQueryDispatcher<PostEntity> queryDispatcher) =>
 {
     try
     {
@@ -160,10 +160,10 @@ app.MapGet("posts/withLikes/{numberOfLikes}", async (
     }
     catch (Exception ex)
     {
-        const string SAFE_ERROR_MESSAGE = "Error while processing request to retrieve posts with likes";
-        logger.LogError(ex, SAFE_ERROR_MESSAGE);
+        const string SafeErrorMessage = "Error while processing request to retrieve posts with likes";
+        app.Logger.LogError(ex, SafeErrorMessage);
 
-        return Results.Problem(SAFE_ERROR_MESSAGE, statusCode: StatusCodes.Status500InternalServerError);
+        return Results.Problem(SafeErrorMessage, statusCode: StatusCodes.Status500InternalServerError);
     }
 })
 .WithName("GetPostByWithLikes")

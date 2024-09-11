@@ -12,5 +12,6 @@ namespace SocialMedia.Post.Query.Domain.Repositories
         Task<List<PostEntity>> ListByAuthorAsync(string author);
         Task<List<PostEntity>> ListWithLikesAsync(int numberOfLikes);
         Task<List<PostEntity>> ListWithCommentsAsync();
+        Task IncrementLikesAsync(Guid postId);
     }
 }

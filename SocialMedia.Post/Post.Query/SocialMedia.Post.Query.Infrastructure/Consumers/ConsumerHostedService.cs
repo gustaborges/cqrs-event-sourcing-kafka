@@ -2,31 +2,34 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace SocialMedia.Post.Query.Infrastructure.Consumers
 {
-    internal class ConsumerHostedService : IHostedService
+    public class ConsumerHostedService : IHostedService
     {
-        private readonly ILogger<ConsumerHostedService> _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<ConsumerHostedService> _logger;
 
-        public ConsumerHostedService(ILogger<ConsumerHostedService> logger, IServiceProvider serviceProvider)
+        public ConsumerHostedService(IServiceProvider serviceProvider, ILogger<ConsumerHostedService> logger)
         {
-            _logger = logger;
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Event consumer service running.");
 
-            using (IServiceScope scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
+                var config = scope.ServiceProvider.GetRequiredService<IOptions<KafkaConfig>>().Value;
                 var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
-                var topic = scope.ServiceProvider.GetRequiredService<KafkaConfig>().Topic;
 
-                await Task.Run(() => eventConsumer.Consume(topic), cancellationToken);
+                Task.Run(() => eventConsumer.Consume(config.Topic), cancellationToken);
             }
+
+            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

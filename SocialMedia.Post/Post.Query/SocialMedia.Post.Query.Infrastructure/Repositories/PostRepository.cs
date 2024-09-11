@@ -193,5 +193,18 @@ namespace SocialMedia.Post.Query.Infrastructure.Repositories
                 }
             }
         }
+
+        public async Task IncrementLikesAsync(Guid postId)
+        {
+            using (var dbConnection = Connection)
+            {
+                var sql = @$"
+                            UPDATE posts 
+                                SET likes = likes + 1 
+                            WHERE post_id = @{nameof(PostEntity.PostId)}";
+
+                await dbConnection.ExecuteAsync(sql, new { postId });
+            }
+        }
     }
 }

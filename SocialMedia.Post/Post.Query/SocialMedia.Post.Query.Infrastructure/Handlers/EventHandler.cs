@@ -51,8 +51,7 @@ namespace SocialMedia.Post.Query.Infrastructure.Handlers
 
             if (post == null) return;
 
-            post.TotalLikes++;
-            await _postRepository.UpdateAsync(post).ConfigureAwait(false);
+            await _postRepository.IncrementLikesAsync(post.PostId).ConfigureAwait(false);
         }
 
         public async Task On(CommentAddedEvent @event)
