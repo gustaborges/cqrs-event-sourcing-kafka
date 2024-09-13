@@ -7,6 +7,6 @@
         public DateTime DatePosted { get; set; }
         public string Message { get; set; }
         public int TotalLikes { get; set; }
-        public ICollection<CommentEntity> Comments { get; set; }
+        public List<CommentEntity> Comments { get; set; } = [];
     }
 }

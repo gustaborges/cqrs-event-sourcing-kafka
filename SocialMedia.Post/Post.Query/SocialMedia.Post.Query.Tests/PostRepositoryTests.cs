@@ -157,16 +157,26 @@ namespace SocialMedia.Post.Query.Tests
         public async Task ShouldListAllPostsWithComments()
         {
             // Arrange
-            var postIds = (await CreatePostsAsync(3);
+            var postIds = await CreatePostsAsync(3);
             var idsWithComments = postIds.Take(2).ToArray();
 
             foreach (var id in idsWithComments)
             {
-                await _commentRepository.CreateAsync(idsWithComments[0]);
+                var comment = new CommentEntity()
+                { 
+                    PostId = id,
+                    CommentId = Guid.NewGuid(),
+                    Comment = "New comment",
+                    CommentDate = DateTime.Now,
+                    Username = "user"
+                };
+
+                await _commentRepository.CreateAsync(comment);
+                _cleanUpStack.Push(async () => await _commentRepository.DeleteAsync(comment.CommentId));
             }
 
             // Act
-            var actualIds = (await _postRepository.ListWithLikesAsync(totalLikes)).Select(x => x.PostId).ToArray();
+            var actualIds = (await _postRepository.ListWithCommentsAsync()).Select(x => x.PostId).ToArray();
 
             // Assert
             actualIds.Should().BeEquivalentTo(idsWithComments);

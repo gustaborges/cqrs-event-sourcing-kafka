@@ -174,9 +174,10 @@ namespace SocialMedia.Post.Query.Infrastructure.Repositories
             using (var dbConnection = Connection)
             {
                 var sql = @$"
-                            UPDATE posts 
-                                SET message = @{nameof(PostEntity.Message)} 
-                            WHERE post_id = @{nameof(PostEntity.PostId)}";
+                        UPDATE posts SET 
+                                message = @{nameof(PostEntity.Message)},
+                                edited = true
+                        WHERE post_id = @{nameof(PostEntity.PostId)}";
 
                 await dbConnection.ExecuteAsync(sql, post);
             }

@@ -15,9 +15,8 @@ namespace SocialMedia.Post.Query.Migrations
                     comment_date    TIMESTAMPTZ NOT NULL,
                     post_id         UUID NOT NULL,
                     edited          BOOLEAN NOT NULL DEFAULT false,
-                    likes           INTEGER NOT NULL DEFAULT 0,
                     PRIMARY KEY (comment_id),
-                    FOREIGN KEY (post_id) REFERENCES posts(post_id)
+                    FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE
                 );");
         }
 

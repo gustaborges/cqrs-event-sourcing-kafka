@@ -1,0 +1,96 @@
+services:
+
+  kafka_broker:
+    container_name: cqrs-kafka
+    image: 'bitnami/kafka:latest'
+    restart: always
+    hostname: kafka_b
+    ports:
+      - 9092:9092
+      - 9094:9094
+    volumes:
+      - kafka.data:/bitnami
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      # - KAFKA_KRAFT_CLUSTER_ID=228f04bc-0895-11ee-be56-0242ac120002
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092,EXTERNAL://kafka_b:9094
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      # - BITNAMI_DEBUG=yes
+      - KAFKA_CFG_NUM_PARTITIONS=2
+
+  # kafka-ui:
+  #   container_name: kafka-ui
+  #   image: provectuslabs/kafka-ui:latest
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     DYNAMIC_CONFIG_ENABLED: 'true'
+  #   volumes:
+  #     - ./kakfa-ui/config.yml:/etc/kafkaui/dynamic_config.yaml
+      
+  mongo:
+    container_name: cqrs-mongodb
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo.data:/data/db
+
+  mongo-express:
+    container_name: cqrs-mongoexpress
+    image: mongo-express:latest
+    restart: always
+    ports:
+      - '8081:8081'
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+
+  postgres:
+      container_name: cqrs-postgres
+      image: postgres
+      restart: always
+      ports:
+        - 6432:5432
+      environment:
+        - POSTGRES_PASSWORD=admin
+      volumes:
+        - postgres.data:/var/lib/postgresql/data
+
+  pgadmin4:
+      container_name: cqrs-pgadmin4
+      user: root
+      image: dpage/pgadmin4
+      restart: always
+      environment:
+        - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+        - PGADMIN_DEFAULT_PASSWORD=admin
+      volumes:
+        - ./pgadmin4/servers.json:/pgadmin4/servers.json
+        - ./pgadmin4/pgpass:/pgpass
+        #- ./queries:/var/lib/pgadmin/storage/admin_admin.com
+        - pgadmin.working.dir:/var/lib/pgadmin
+      ports:
+        - 6433:80
+      depends_on:
+        - postgres
+
+volumes:
+  mongo.data:
+  postgres.data:
+  pgadmin.working.dir:
+  kafka.data:
+
+
+networks:
+  default:
+    name: cqrs_network
+    driver: bridge

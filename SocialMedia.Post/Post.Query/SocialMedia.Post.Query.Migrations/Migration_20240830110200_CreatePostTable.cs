@@ -14,6 +14,7 @@ namespace SocialMedia.Post.Query.Migrations
                     date_posted TIMESTAMPTZ NOT NULL,
                     message     VARCHAR(60000) NOT NULL,
                     likes       INTEGER NOT NULL DEFAULT 0,
+                    edited      BOOLEAN NOT NULL DEFAULT false,
                     PRIMARY KEY(post_id)
                 );");
         }

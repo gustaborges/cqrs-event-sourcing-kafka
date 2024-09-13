@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
     <UserSecretsId>c5bf9695-8a15-4373-9446-cd812b735747</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>../../..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,10 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SocialMedia.Post.Query.Domain\SocialMedia.Post.Query.Domain.csproj" />
     <ProjectReference Include="..\SocialMedia.Post.Query.Infrastructure\SocialMedia.Post.Query.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DTOs\Requests\" />
   </ItemGroup>
 
 </Project>

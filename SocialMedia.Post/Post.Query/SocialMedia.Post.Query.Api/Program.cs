@@ -52,18 +52,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-app.MapPost("/posts/{postId}/comments", async (
-    [FromRoute] Guid postId,
-    [FromBody] Guid body,
-    [FromServices] ICommandDispatcher commandDispatcher,
-    HttpContext httpContext) =>
-{
-    await Task.CompletedTask;
-    return Results.NoContent();
-})
-.WithName("AddComment")
-.WithOpenApi();
-
 app.MapGet("posts", async (
     [FromServices] IQueryDispatcher<PostEntity> queryDispatcher) =>
 {

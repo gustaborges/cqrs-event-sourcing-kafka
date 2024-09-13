@@ -33,11 +33,14 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "ASPNETCORE_HTTPS_PORTS": "8081",
-        "ASPNETCORE_HTTP_PORTS": "8080"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_HTTPS_PORTS": "4601",
+        "ASPNETCORE_HTTP_PORTS": "4600"
       },
       "publishAllPorts": true,
-      "useSSL": true
+      "useSSL": true,
+      "httpPort": 4600,
+      "sslPort": 4601
     },
     "WSL": {
       "commandName": "WSL2",

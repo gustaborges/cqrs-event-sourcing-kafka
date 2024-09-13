@@ -23,8 +23,9 @@ namespace SocialMedia.Post.Query.Infrastructure.Repositories
             using (var dbConnection = Connection)
             {
                 var sql = @$"
-                        INSERT INTO comments (comment_id, username, comment_date, post_id) 
+                        INSERT INTO comments (comment_id, comment, username, comment_date, post_id) 
                         VALUES (@{nameof(CommentEntity.CommentId)}, 
+                                @{nameof(CommentEntity.Comment)},
                                 @{nameof(CommentEntity.Username)}, 
                                 @{nameof(CommentEntity.CommentDate)}, 
                                 @{nameof(CommentEntity.PostId)});";
