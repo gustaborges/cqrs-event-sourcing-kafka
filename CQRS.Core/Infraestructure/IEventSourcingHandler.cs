@@ -6,5 +6,6 @@ namespace CQRS.Core.Infraestructure
     {
         Task SaveAsync(AggregateRoot aggregate);
         Task<TAggregate> GetByIdAsync(Guid aggregateId);
+        Task RepublishEventsAsync();
     }
 }

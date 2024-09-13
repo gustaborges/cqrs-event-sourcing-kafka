@@ -39,6 +39,7 @@ builder.Services.AddScoped<ICommandDispatcher>(sp =>
     dispatcher.RegisterHandler<AddCommentCommand>(commandHandler.HandleAsync);
     dispatcher.RegisterHandler<EditCommentCommand>(commandHandler.HandleAsync);
     dispatcher.RegisterHandler<RemoveCommentCommand>(commandHandler.HandleAsync);
+    dispatcher.RegisterHandler<RestoreReadDbCommand>(commandHandler.HandleAsync);
 
     return dispatcher;
 });
@@ -66,5 +67,10 @@ app.UseAuthorization();
 app.MapPostEndpoints();
 app.MapLikeEndpoints();
 app.MapCommentEndpoints();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapRestoreReadDbEndpoints();
+}
 
 app.Run();

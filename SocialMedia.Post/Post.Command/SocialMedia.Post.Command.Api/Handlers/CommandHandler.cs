@@ -70,6 +70,12 @@ namespace SocialMedia.Post.Command.Api.Handlers
             return await SaveAsync(aggregate);
         }
 
+        public async Task<CommandResult> HandleAsync(RestoreReadDbCommand command)
+        {
+            await _eventSourcingHandler.RepublishEventsAsync();
+            return CommandResult.Success();
+        }
+
         private async Task<CommandResult> SaveAsync(PostAggregate aggregate)
         {
             if (aggregate.HasNotifications())

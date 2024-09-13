@@ -5,7 +5,7 @@ using SocialMedia.Post.Common.Events;
 namespace SocialMedia.Post.Command.Domain.Aggregates
 {
     /**
-     * TODO: Validation should always occur before the Aggregate raises an event, because a client might pass incorrect information which we do not want to affect the state of the Aggregate. Once an event has been raised it will be applied to the Aggregate and persisted to the event store. We must guard the event store from events that contain errors or unvalidated data..
+     * Validation should always occur before the Aggregate raises an event, because a client might pass incorrect information which we do not want to affect the state of the Aggregate. Once an event has been raised it will be applied to the Aggregate and persisted to the event store. We must guard the event store from events that contain errors or unvalidated data..
      */
 
     public class PostAggregate : AggregateRoot

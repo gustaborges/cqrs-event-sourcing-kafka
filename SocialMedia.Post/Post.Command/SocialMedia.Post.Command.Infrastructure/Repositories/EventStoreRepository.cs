@@ -17,6 +17,11 @@ namespace SocialMedia.Post.Command.Infrastructure.Repositories
             _eventStoreCollection = database.GetCollection<EventModel>(config.Value.Collection);
         }
 
+        public async Task<IList<EventModel>> FindAllAsync()
+        {
+            return await _eventStoreCollection.Find(_ => true).ToListAsync().ConfigureAwait(false);
+        }
+
         public async Task<IList<EventModel>> FindByAggregateIdAsync(Guid aggregateId)
         {
             return await _eventStoreCollection.Find(x => x.AggregateIdentifier == aggregateId)

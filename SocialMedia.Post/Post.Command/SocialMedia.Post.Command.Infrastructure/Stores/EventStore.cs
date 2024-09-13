@@ -26,6 +26,18 @@ namespace SocialMedia.Post.Command.Infrastructure.Stores
             _config = config.Value;
         }
 
+        public async Task<IList<Guid>> GetAggregateIdsAsync()
+        {
+            IList<EventModel> eventStream = await _eventStoreRepository.FindAllAsync();
+
+            if (eventStream is null || eventStream.Count == 0)
+            {
+                return [];
+            }
+
+            return eventStream.Select(x => x.AggregateIdentifier).Distinct().ToList();
+        }
+
         public async Task<IList<BaseEvent>> GetEventsAsync(Guid aggregateId)
         {
             var eventStream = await _eventStoreRepository.FindByAggregateIdAsync(aggregateId);

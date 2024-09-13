@@ -6,5 +6,6 @@ namespace CQRS.Core.Infraestructure
     {
         Task SaveEventsAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion);
         Task<IList<BaseEvent>> GetEventsAsync(Guid aggregateId);
+        Task<IList<Guid>> GetAggregateIdsAsync();
     }
 }

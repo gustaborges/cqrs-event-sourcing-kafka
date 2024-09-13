@@ -12,6 +12,6 @@ namespace SocialMedia.Post.Command.Api.Handlers
         Task<CommandResult> HandleAsync(EditCommentCommand command);
         Task<CommandResult> HandleAsync(RemoveCommentCommand command);
         Task<CommandResult> HandleAsync(LikePostCommand command);
-
+        Task<CommandResult> HandleAsync(RestoreReadDbCommand command);
     }
 }
