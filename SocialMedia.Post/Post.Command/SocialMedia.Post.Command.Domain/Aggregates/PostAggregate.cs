@@ -192,8 +192,6 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
         public void Apply(MessageUpdatedEvent @event)
         {
-            // TODO: Why does this post aggregate does not include a Message property??
-            // Why are we only setting here the Id and not the Message ?
             Id = @event.Id;
         }
 
@@ -204,25 +202,25 @@ namespace SocialMedia.Post.Command.Domain.Aggregates
 
         public void Apply(CommentAddedEvent @event)
         {
-            Id = @event.Id; // TODO: why are we setting the id of the post ?
+            Id = @event.Id;
             Comments.Add(@event.CommentId, (@event.Comment, @event.Username));
         }
 
         public void Apply(CommentUpdatedEvent @event)
         {
-            Id = @event.Id; // TODO: why are we setting the id of the post ?
+            Id = @event.Id;
             Comments[@event.CommentId] = (@event.Comment, @event.Username);
         }
 
         public void Apply(CommentRemovedEvent @event)
         {
-            Id = @event.Id; // TODO: why are we setting the id of the post ?
+            Id = @event.Id;
             Comments.Remove(@event.CommentId);
         }
 
         public void Apply(PostRemovedEvent @event)
         {
-            Id = @event.Id; // TODO: why are we setting the id of the post ?
+            Id = @event.Id;
             Removed = true;
         }
     }

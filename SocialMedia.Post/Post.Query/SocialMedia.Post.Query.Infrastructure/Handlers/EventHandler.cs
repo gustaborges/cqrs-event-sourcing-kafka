@@ -37,6 +37,7 @@ namespace SocialMedia.Post.Query.Infrastructure.Handlers
 
             if(post == null) return;
 
+            post.Message = @event.Message;
             await _postRepository.UpdateAsync(post).ConfigureAwait(false);
         }
 
